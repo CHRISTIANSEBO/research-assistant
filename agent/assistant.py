@@ -24,16 +24,26 @@ def create_agent():
     
     # Define the prompt — this tells Claude what its role is
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a helpful research assistant. Use the search tool to find accurate and up to date information."),
-        ("human", "{input}"),
-        # This is required — it's where the agent stores its reasoning steps
-        ("placeholder", "{agent_scratchpad}"),
-    ])
+    ("system", """You are an expert research assistant. Your job is to find accurate, up to date information and present it clearly.
+
+Follow these rules for every response:
+- Always search for information before answering
+- Start with a short 2-3 sentence summary of the topic
+- Present findings as clear bullet points
+- Cite the source URL for each key finding
+- Use a professional, educational tone
+- If you are unsure about something, say so clearly
+"""),
+    # This inserts the conversation history so the agent remembers context
+    ("placeholder", "{chat_history}"),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}"),
+])
     
     # Create the agent — this binds Claude, the tools, and the prompt together
     agent = create_tool_calling_agent(llm, tools, prompt)
     
     # AgentExecutor is the runtime — it actually runs the agent in a loop until done
-    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
     
     return executor

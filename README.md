@@ -3,6 +3,9 @@
 An AI-powered research assistant that searches the web and delivers 
 clear, sourced answers through a conversational CLI interface.
 
+## 🎬 Demo
+![Research Assistant Demo](demo.gif)
+
 ## 🌍 The Problem
 Finding reliable, up-to-date information online is time consuming. 
 Search engines return dozens of links that still require manual reading 

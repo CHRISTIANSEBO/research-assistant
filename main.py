@@ -4,6 +4,22 @@ from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
 import os
 import sys
+import argparse
+
+def parse_arguments():
+    # Create the argument parser
+    parser = argparse.ArgumentParser(
+        description="AI Research Assistant — powered by Claude and Tavily"
+    )
+    
+    # Add the --topic flag
+    parser.add_argument(
+        "--topic",
+        type=str,
+        help="Research topic to start with immediately"
+    )
+    
+    return parser.parse_args()
 
 # Load environment variables from .env at the very start
 load_dotenv()
@@ -49,6 +65,9 @@ def main():
      # Validate keys before doing anything else
     validate_keys()
 
+    # Parse command line arguments
+    args = parse_arguments()
+
     # Create the agent once
     agent = create_agent()
     
@@ -58,17 +77,24 @@ def main():
     # Show the header when app starts
     print_header()
     
-    # Keep the conversation alive with a loop
+    # If a topic was passed in, use it as the first query
+    first_query = args.topic if args.topic else None
+
     while True:
-        # Get user input
-        query = input("You: ")
-        
+        # Use the --topic argument for the first query if provided
+        if first_query:
+            query = first_query
+            print(f"You: {query}\n")
+            first_query = None  # Clear it so subsequent queries use input()
+        else:
+            query = input("You: ")
+
         # Allow the user to exit cleanly
         if query.lower() == "exit":
             print("\nGoodbye! Happy researching. 👋\n")
             break
-        
-        # Handle empty input — don't send blank queries to the agent
+
+        # Handle empty input
         if not query.strip():
             print("⚠️ Please enter a research question.\n")
             continue

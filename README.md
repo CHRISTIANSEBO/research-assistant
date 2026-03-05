@@ -57,3 +57,11 @@ research-assistant/
 - Real-time web search with cited sources
 - Auto-saves research results to timestamped files
 - Clean CLI interface
+- Error handling for API failures and missing keys
+- `--topic` flag for immediate research from command line
+
+## 🔮 Future Improvements
+- Web UI using Streamlit
+- Support for multiple search tools
+- Export results to PDF or DOCX
+- Multi-agent collaboration

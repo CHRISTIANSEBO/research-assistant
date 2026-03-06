@@ -24,6 +24,7 @@ remembers conversation context, and saves every result to a timestamped file.
 - **Language:** Python 3.11
 
 ## ⚙️ Setup Instructions
+'''
 
 1. Clone the repository
    git clone https://github.com/CHRISTIANSEBO/research-assistant.git
@@ -43,7 +44,11 @@ remembers conversation context, and saves every result to a timestamped file.
 5. Run the agent
    python main.py
 
+'''
+
 ## 📁 Project Structure
+'''
+
 research-assistant/
 ├── .env
 ├── .gitignore
@@ -54,6 +59,8 @@ research-assistant/
     ├── tools.py
     ├── assistant.py
     └── file_handler.py
+
+'''
 
 ## ✨ Features
 - Conversational memory across the session

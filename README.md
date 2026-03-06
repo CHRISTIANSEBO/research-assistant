@@ -24,7 +24,6 @@ remembers conversation context, and saves every result to a timestamped file.
 - **Language:** Python 3.11
 
 ## ⚙️ Setup Instructions
-'''
 
 1. Clone the repository
  ```bash
@@ -54,10 +53,8 @@ remembers conversation context, and saves every result to a timestamped file.
    python main.py
 ```
 
-'''
-
 ## 📁 Project Structure
-
+```
 research-assistant/
 ├── .env
 ├── .gitignore
@@ -70,7 +67,6 @@ research-assistant/
     └── file_handler.py
 ```
 
-'''
 
 ## ✨ Features
 - Conversational memory across the session

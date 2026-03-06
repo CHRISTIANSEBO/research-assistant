@@ -27,27 +27,36 @@ remembers conversation context, and saves every result to a timestamped file.
 '''
 
 1. Clone the repository
+ ```bash
    git clone https://github.com/CHRISTIANSEBO/research-assistant.git
    cd research-assistant
+```
 
 2. Create and activate a virtual environment
+```bash
    python -m venv venv
    venv\Scripts\activate
+```
 
 3. Install dependencies
+```bash
    pip install -r requirements.txt
+```
 
 4. Add your API keys — create a .env file in the root folder
+```
    ANTHROPIC_API_KEY=your_key_here
    TAVILY_API_KEY=your_key_here
+```
 
 5. Run the agent
+```bash
    python main.py
+```
 
 '''
 
 ## 📁 Project Structure
-'''
 
 research-assistant/
 ├── .env
@@ -59,6 +68,7 @@ research-assistant/
     ├── tools.py
     ├── assistant.py
     └── file_handler.py
+```
 
 '''
 

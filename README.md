@@ -9,7 +9,7 @@ clear, sourced answers through a chat interface.
 
 | Landing | Chat | Sidebar |
 |---|---|---|
-| ![Landing](demo1.png) | ![Chat](demo2.png) | ![Sidebar](demo3.png) |
+| ![Landing](demo_screenshots/demo1.png) | ![Chat](demo_screenshots/demo2.png) | ![Sidebar](demo_screenshots/demo3.png) |
 
 ## 🌍 The Problem
 Finding reliable, up-to-date information online is time consuming.

@@ -60,13 +60,23 @@ research-assistant/
 ├── .gitignore
 ├── requirements.txt
 ├── main.py
-└── agent/
-    ├── __init__.py
-    ├── tools.py
-    ├── assistant.py
-    └── file_handler.py
+├── agent/
+│   ├── __init__.py
+│   ├── tools.py
+│   ├── assistant.py
+│   └── file_handler.py
+└── tests/
+    ├── test_file_handler.py
+    ├── test_tools.py
+    ├── test_assistant.py
+    └── test_main.py
 ```
 
+
+## 🧪 Running Tests
+```bash
+python -m pytest tests/ -v
+```
 
 ## ✨ Features
 - Conversational memory across the session
@@ -75,6 +85,7 @@ research-assistant/
 - Clean CLI interface
 - Error handling for API failures and missing keys
 - `--topic` flag for immediate research from command line
+- Unit test suite covering all core modules
 
 ## 🔮 Future Improvements
 - Web UI using Streamlit

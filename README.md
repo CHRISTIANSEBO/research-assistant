@@ -31,6 +31,13 @@ remembers conversation context, and saves every result to a timestamped file.
 
 ## ⚙️ Setup Instructions
 
+> **Note for VS Code users:** If GitHub is not attributing your commits to your account, your local git identity may not match your GitHub email. Run these commands once in a terminal to fix it:
+> ```bash
+> git config --global user.name "Your GitHub Username"
+> git config --global user.email "your-github-email@example.com"
+> ```
+> The email must match the one registered (and verified) in your [GitHub account settings](https://github.com/settings/emails). You can verify your current config with `git config --global --list`.
+
 1. Clone the repository
  ```bash
    git clone https://github.com/CHRISTIANSEBO/research-assistant.git

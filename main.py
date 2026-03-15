@@ -1,4 +1,4 @@
-from agent.assistant import create_agent
+from agent.assistant import create_research_agent
 from agent.file_handler import save_research
 from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
@@ -69,7 +69,7 @@ def main():
     args = parse_arguments()
 
     # Create the agent once
-    agent = create_agent()
+    agent = create_research_agent()
     
     # Initialize empty chat history list
     chat_history = []

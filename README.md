@@ -2,27 +2,31 @@
 
 ![Tests](https://github.com/CHRISTIANSEBO/research-assistant/actions/workflows/tests.yml/badge.svg)
 
-An AI-powered research assistant that searches the web and delivers 
-clear, sourced answers through a conversational CLI interface.
+An AI-powered research assistant that searches the web and delivers
+clear, sourced answers through a chat interface.
 
-## 🎬 Demo
-![Research Assistant Demo](demo.gif)
+## Screenshots
+
+| Landing | Chat | Sidebar |
+|---|---|---|
+| ![Landing](demo1.png) | ![Chat](demo2.png) | ![Sidebar](demo3.png) |
 
 ## 🌍 The Problem
-Finding reliable, up-to-date information online is time consuming. 
-Search engines return dozens of links that still require manual reading 
-and synthesis. There is no easy way to have a focused research 
+Finding reliable, up-to-date information online is time consuming.
+Search engines return dozens of links that still require manual reading
+and synthesis. There is no easy way to have a focused research
 conversation that remembers context and saves results.
 
 ## 💡 The Solution
-This agent accepts natural language research questions, searches the web 
-in real time, synthesizes findings into clear bullet points with sources, 
+This agent accepts natural language research questions, searches the web
+in real time, synthesizes findings into clear bullet points with sources,
 remembers conversation context, and saves every result to a timestamped file.
 
 ## 🛠 Tech Stack
 - **LLM:** Anthropic Claude (claude-sonnet)
 - **Agent Framework:** LangChain
 - **Search Tool:** Tavily API
+- **UI:** Streamlit
 - **Language:** Python 3.11
 
 ## ⚙️ Setup Instructions
@@ -50,7 +54,12 @@ remembers conversation context, and saves every result to a timestamped file.
    TAVILY_API_KEY=your_key_here
 ```
 
-5. Run the agent
+5. Run the web app
+```bash
+   streamlit run app.py
+```
+
+Or run the CLI version
 ```bash
    python main.py
 ```
@@ -61,6 +70,7 @@ research-assistant/
 ├── .env
 ├── .gitignore
 ├── requirements.txt
+├── app.py
 ├── main.py
 ├── agent/
 │   ├── __init__.py
@@ -81,16 +91,15 @@ python -m pytest tests/ -v
 ```
 
 ## ✨ Features
+- Clean, responsive web interface built with Streamlit
 - Conversational memory across the session
 - Real-time web search with cited sources
 - Auto-saves research results to timestamped files in `results/research_YYYYMMDD_HHMMSS.txt`
-- Clean CLI interface
+- CLI interface also available via `python main.py`
 - Error handling for API failures and missing keys
-- `--topic` flag for immediate research from command line
 - Unit test suite covering all core modules
 
 ## 🔮 Future Improvements
-- Web UI using Streamlit
 - Support for multiple search tools
 - Export results to PDF or DOCX
 - Multi-agent collaboration

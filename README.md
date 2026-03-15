@@ -99,7 +99,7 @@ python -m pytest tests/ -v
 - Error handling for API failures and missing keys
 - Unit test suite covering all core modules
 
-## 🔮 Future Improvements
+## Future Improvements
 - Support for multiple search tools
 - Export results to PDF or DOCX
 - Multi-agent collaboration

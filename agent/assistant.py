@@ -17,7 +17,7 @@ load_dotenv()
 
 def create_agent():
     # Initialize Claude as our LLM
-    llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+    llm = ChatAnthropic(model="claude-sonnet-4")
     
     # Get our tools list from tools.py
     tools = get_tools()
@@ -44,6 +44,6 @@ Follow these rules for every response:
     agent = create_tool_calling_agent(llm, tools, prompt)
     
     # AgentExecutor is the runtime — it actually runs the agent in a loop until done
-    executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=False) 
     
     return executor

@@ -1,6 +1,7 @@
-langchain
-langchain-anthropic
-langchain-community
-tavily-python
-python-dotenv
-pytest
+langchain==0.3.7
+langchain-anthropic==0.3.15
+langchain-community==0.3.7
+langchain-core==0.3.63
+tavily-python==0.7.22
+python-dotenv==1.2.2
+pytest==9.0.2

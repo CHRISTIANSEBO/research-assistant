@@ -4,4 +4,5 @@ langchain-community==0.3.7
 langchain-core==0.3.63
 tavily-python==0.7.22
 python-dotenv==1.2.2
+streamlit==1.55.0
 pytest==9.0.2

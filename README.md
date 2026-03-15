@@ -1,5 +1,7 @@
 # 🔍 AI Research Assistant
 
+![Tests](https://github.com/CHRISTIANSEBO/research-assistant/actions/workflows/tests.yml/badge.svg)
+
 An AI-powered research assistant that searches the web and delivers 
 clear, sourced answers through a conversational CLI interface.
 

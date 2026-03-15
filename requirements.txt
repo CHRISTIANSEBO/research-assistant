@@ -3,3 +3,4 @@ langchain-anthropic
 langchain-community
 tavily-python
 python-dotenv
+pytest

@@ -81,7 +81,7 @@ python -m pytest tests/ -v
 ## ✨ Features
 - Conversational memory across the session
 - Real-time web search with cited sources
-- Auto-saves research results to timestamped files
+- Auto-saves research results to timestamped files in `results/research_YYYYMMDD_HHMMSS.txt`
 - Clean CLI interface
 - Error handling for API failures and missing keys
 - `--topic` flag for immediate research from command line

@@ -82,7 +82,7 @@ async function submitQuery() {
       body: JSON.stringify({ query, history }),
     });
     const data = await res.json();
-    typingEl.remove();
+    removeTyping(typingEl);
 
     if (!res.ok || data.error) {
       appendError(data.error || `Request failed (${res.status})`);
@@ -92,7 +92,7 @@ async function submitQuery() {
       persistActive();
     }
   } catch (err) {
-    typingEl.remove();
+    removeTyping(typingEl);
     appendError("Network error. Please check your connection and try again.");
   } finally {
     busy = false;
@@ -131,15 +131,51 @@ function renderChat() {
   scrollToBottom();
 }
 
+// Phases shown (and cycled) while the agent works, to convey a research process.
+const THINKING_PHASES = [
+  "Researching",
+  "Searching the web",
+  "Reading sources",
+  "Cross-checking facts",
+  "Synthesizing findings",
+  "Almost there",
+];
+
 function appendTyping() {
   landing.hidden = true;
   chat.hidden = false;
   const wrap = document.createElement("div");
   wrap.className = "msg assistant";
-  wrap.innerHTML = `<div class="bubble"><span class="typing"><span></span><span></span><span></span></span></div>`;
+  wrap.innerHTML = `
+    <div class="bubble">
+      <div class="thinking">
+        <span class="thinking-orb"></span>
+        <span class="thinking-text">
+          <span class="thinking-label">${THINKING_PHASES[0]}</span><span class="thinking-dots"></span>
+        </span>
+      </div>
+    </div>`;
   chat.appendChild(wrap);
   scrollToBottom();
+
+  // Advance through the research phases while we wait for the response.
+  const label = wrap.querySelector(".thinking-label");
+  let i = 0;
+  wrap._phaseTimer = setInterval(() => {
+    i = (i + 1) % THINKING_PHASES.length;
+    label.style.opacity = "0";
+    setTimeout(() => {
+      label.textContent = THINKING_PHASES[i];
+      label.style.opacity = "1";
+    }, 200);
+  }, 2400);
+
   return wrap;
+}
+
+function removeTyping(el) {
+  if (el && el._phaseTimer) clearInterval(el._phaseTimer);
+  if (el) el.remove();
 }
 
 function appendError(text) {

@@ -11,6 +11,10 @@
 
 * { box-sizing: border-box; }
 
+/* The `hidden` attribute must win over component display rules
+   (e.g. .landing { display: flex }), otherwise hidden sections stay visible. */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   height: 100%;

@@ -296,6 +296,47 @@ html, body {
   .thinking-label { animation: none; color: #555; }
 }
 
+/* Live research steps */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.step {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: #777;
+  animation: step-in 0.25s ease;
+}
+.step-icon { flex-shrink: 0; font-size: 0.8rem; }
+.step-text { overflow-wrap: anywhere; }
+@keyframes step-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.active-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0;
+}
+
+/* Streamed answer area: a soft caret while text is still arriving */
+.answer.streaming:not(:empty)::after {
+  content: "▋";
+  margin-left: 1px;
+  color: #bbb;
+  animation: caret-blink 1s steps(1) infinite;
+}
+.answer:empty { display: none; }
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+
 /* Composer */
 .composer {
   border-top: 1px solid var(--border-soft);

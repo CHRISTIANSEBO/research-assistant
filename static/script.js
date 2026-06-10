@@ -71,7 +71,34 @@ async function submitQuery() {
 
   busy = true;
   updateSendState();
-  const typingEl = appendTyping();
+
+  const stream = appendStreaming();
+  let answer = "";
+  let sawToken = false;
+
+  const handleEvent = (evt) => {
+    if (evt.type === "step") {
+      addStep(stream, evt);
+    } else if (evt.type === "token") {
+      if (!sawToken) {
+        sawToken = true;
+        setActiveLabel(stream, "Writing answer");
+      }
+      answer += evt.text;
+      scheduleRender(stream.answerEl, answer);
+    } else if (evt.type === "done") {
+      finalizeStreaming(stream);
+      const finalText = answer.trim();
+      stream.answerEl.innerHTML = renderMarkdown(finalText);
+      if (evt.saved_to) addSavedNote(stream.wrap, evt.saved_to);
+      messages.push({ role: "assistant", content: finalText, savedTo: evt.saved_to });
+      persistActive();
+      scrollToBottom();
+    } else if (evt.type === "error") {
+      removeStreaming(stream);
+      appendError(evt.error);
+    }
+  };
 
   try {
     // Send prior history (everything except the message we just added).
@@ -81,18 +108,39 @@ async function submitQuery() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, history }),
     });
-    const data = await res.json();
-    removeTyping(typingEl);
 
-    if (!res.ok || data.error) {
-      appendError(data.error || `Request failed (${res.status})`);
-    } else {
-      messages.push({ role: "assistant", content: data.answer, savedTo: data.saved_to });
-      renderChat();
-      persistActive();
+    if (!res.ok || !res.body) {
+      let msg = `Request failed (${res.status})`;
+      try {
+        const j = await res.json();
+        if (j.error) msg = j.error;
+      } catch { /* not JSON */ }
+      removeStreaming(stream);
+      appendError(msg);
+      return;
+    }
+
+    // Parse the Server-Sent Events stream.
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let sep;
+      while ((sep = buffer.indexOf("\n\n")) !== -1) {
+        const frame = buffer.slice(0, sep);
+        buffer = buffer.slice(sep + 2);
+        const line = frame.startsWith("data:") ? frame.slice(5).trim() : frame.trim();
+        if (!line) continue;
+        try {
+          handleEvent(JSON.parse(line));
+        } catch { /* ignore malformed frame */ }
+      }
     }
   } catch (err) {
-    removeTyping(typingEl);
+    removeStreaming(stream);
     appendError("Network error. Please check your connection and try again.");
   } finally {
     busy = false;
@@ -131,51 +179,84 @@ function renderChat() {
   scrollToBottom();
 }
 
-// Phases shown (and cycled) while the agent works, to convey a research process.
-const THINKING_PHASES = [
-  "Researching",
-  "Searching the web",
-  "Reading sources",
-  "Cross-checking facts",
-  "Synthesizing findings",
-  "Almost there",
-];
+// ---------- Streaming assistant bubble ----------
+const STEP_ICONS = { search: "🔎", read: "📄" };
 
-function appendTyping() {
+// Create the assistant bubble that shows live research steps + streamed answer.
+function appendStreaming() {
   landing.hidden = true;
   chat.hidden = false;
   const wrap = document.createElement("div");
   wrap.className = "msg assistant";
   wrap.innerHTML = `
     <div class="bubble">
-      <div class="thinking">
+      <div class="steps"></div>
+      <div class="active-step">
         <span class="thinking-orb"></span>
         <span class="thinking-text">
-          <span class="thinking-label">${THINKING_PHASES[0]}</span><span class="thinking-dots"></span>
+          <span class="thinking-label">Researching</span><span class="thinking-dots"></span>
         </span>
       </div>
+      <div class="answer streaming"></div>
     </div>`;
   chat.appendChild(wrap);
   scrollToBottom();
-
-  // Advance through the research phases while we wait for the response.
-  const label = wrap.querySelector(".thinking-label");
-  let i = 0;
-  wrap._phaseTimer = setInterval(() => {
-    i = (i + 1) % THINKING_PHASES.length;
-    label.style.opacity = "0";
-    setTimeout(() => {
-      label.textContent = THINKING_PHASES[i];
-      label.style.opacity = "1";
-    }, 200);
-  }, 2400);
-
-  return wrap;
+  return {
+    wrap,
+    stepsEl: wrap.querySelector(".steps"),
+    activeEl: wrap.querySelector(".active-step"),
+    labelEl: wrap.querySelector(".thinking-label"),
+    answerEl: wrap.querySelector(".answer"),
+  };
 }
 
-function removeTyping(el) {
-  if (el && el._phaseTimer) clearInterval(el._phaseTimer);
-  if (el) el.remove();
+// Append a completed step line and reflect the current stage in the spinner.
+function addStep(stream, evt) {
+  const line = document.createElement("div");
+  line.className = "step";
+  const icon = STEP_ICONS[evt.phase] || "•";
+  const detail = evt.detail ? ` — ${evt.detail}` : "";
+  line.innerHTML = `<span class="step-icon">${icon}</span><span class="step-text"></span>`;
+  line.querySelector(".step-text").textContent = `${evt.label}${detail}`;
+  stream.stepsEl.appendChild(line);
+  setActiveLabel(stream, evt.label);
+  scrollToBottom();
+}
+
+function setActiveLabel(stream, text) {
+  if (stream.labelEl) stream.labelEl.textContent = text;
+}
+
+// Throttle markdown re-rendering to once per animation frame while tokens stream.
+function scheduleRender(el, text) {
+  el._pending = text;
+  if (el._raf) return;
+  el._raf = requestAnimationFrame(() => {
+    el._raf = null;
+    el.innerHTML = renderMarkdown(el._pending);
+    scrollToBottom();
+  });
+}
+
+// Remove the active spinner once the answer is complete; keep steps + answer.
+function finalizeStreaming(stream) {
+  if (stream.answerEl && stream.answerEl._raf) {
+    cancelAnimationFrame(stream.answerEl._raf);
+    stream.answerEl._raf = null;
+  }
+  if (stream.activeEl) stream.activeEl.remove();
+  if (stream.answerEl) stream.answerEl.classList.remove("streaming");
+}
+
+function removeStreaming(stream) {
+  if (stream && stream.wrap) stream.wrap.remove();
+}
+
+function addSavedNote(wrap, savedTo) {
+  const note = document.createElement("div");
+  note.className = "saved-note";
+  note.textContent = `Saved to ${savedTo}`;
+  wrap.after(note);
 }
 
 function appendError(text) {

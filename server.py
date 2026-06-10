@@ -1,11 +1,45 @@
+import asyncio
+import json
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request, send_from_directory
+from flask import (
+    Flask,
+    Response,
+    jsonify,
+    request,
+    send_from_directory,
+    stream_with_context,
+)
 from langchain_core.messages import AIMessage, HumanMessage
 
 from agent.assistant import create_research_agent
 from agent.file_handler import save_research
+
+
+def _chunk_text(chunk):
+    """Extract plain text from a streamed chat-model chunk, skipping tool calls."""
+    content = getattr(chunk, "content", None)
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict) and block.get("type") == "text":
+                parts.append(block.get("text", ""))
+        return "".join(parts)
+    return ""
+
+
+def _extract_output(out):
+    """Pull the final answer string out of an AgentExecutor chain output."""
+    if isinstance(out, dict):
+        out = out.get("output", "")
+    if isinstance(out, list):
+        return "".join(b.get("text", "") for b in out if isinstance(b, dict))
+    return out if isinstance(out, str) else ""
 
 load_dotenv()
 
@@ -59,22 +93,78 @@ def research():
         elif role == "assistant":
             chat_history.append(AIMessage(content=content))
 
-    try:
-        response = get_agent().invoke({
-            "input": query,
-            "chat_history": chat_history,
-        })
+    def event_stream():
+        """Stream the agent's real steps and answer tokens as Server-Sent Events."""
+        def sse(obj):
+            return f"data: {json.dumps(obj)}\n\n"
 
-        output = response["output"]
-        if isinstance(output, list):
-            output = output[0].get("text", "")
+        agent = get_agent()
+        answer_parts = []
+        final_output = ""
 
-        filename = save_research(query, output)
+        # astream_events is async; drive it from a private event loop so this
+        # works inside Flask's synchronous (gunicorn) worker.
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
 
-        return jsonify({"answer": output, "saved_to": filename})
+        async def run():
+            nonlocal final_output
+            async for ev in agent.astream_events(
+                {"input": query, "chat_history": chat_history},
+                version="v2",
+            ):
+                kind = ev.get("event")
+                if kind == "on_tool_start":
+                    tool_in = ev.get("data", {}).get("input", {})
+                    q = tool_in.get("query") if isinstance(tool_in, dict) else tool_in
+                    yield {"type": "step", "phase": "search",
+                           "label": "Searching the web", "detail": str(q or "")}
+                elif kind == "on_tool_end":
+                    out = ev.get("data", {}).get("output")
+                    count = len(out) if isinstance(out, list) else None
+                    yield {"type": "step", "phase": "read", "label": "Read sources",
+                           "detail": (f"{count} results" if count is not None else "")}
+                elif kind == "on_chat_model_stream":
+                    text = _chunk_text(ev.get("data", {}).get("chunk"))
+                    if text:
+                        answer_parts.append(text)
+                        yield {"type": "token", "text": text}
+                elif kind == "on_chain_end" and ev.get("name") == "AgentExecutor":
+                    final_output = _extract_output(ev.get("data", {}).get("output"))
 
-    except Exception as e:  # noqa: BLE001 - surface any agent/API error to the client
-        return jsonify({"error": f"Something went wrong: {str(e)}"}), 500
+        agen = run().__aiter__()
+        try:
+            while True:
+                try:
+                    item = loop.run_until_complete(agen.__anext__())
+                except StopAsyncIteration:
+                    break
+                yield sse(item)
+
+            answer = "".join(answer_parts).strip() or final_output.strip()
+            if answer and not answer_parts:
+                # Streaming produced no text deltas; deliver the final answer at once.
+                yield sse({"type": "token", "text": answer})
+
+            saved_to = None
+            if answer:
+                try:
+                    saved_to = save_research(query, answer)
+                except Exception:  # noqa: BLE001 - saving is best-effort
+                    saved_to = None
+
+            yield sse({"type": "done", "saved_to": saved_to})
+        except Exception as e:  # noqa: BLE001 - surface any agent/API error
+            yield sse({"type": "error", "error": f"Something went wrong: {str(e)}"})
+        finally:
+            loop.close()
+
+    headers = {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+    }
+    return Response(stream_with_context(event_stream()), headers=headers)
 
 
 if __name__ == "__main__":

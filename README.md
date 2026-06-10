@@ -124,6 +124,7 @@ python -m pytest tests/ -v
 - Conversation history persisted in the browser via localStorage
 - Conversational memory across the session
 - Real-time web search with cited sources
+- Streaming responses (Server-Sent Events): live research steps (searching, sources read) and answer tokens stream in as the agent works
 - Auto-saves research results to timestamped files in `results/research_YYYYMMDD_HHMMSS.txt`
 - CLI interface also available via `python main.py`
 - Error handling for API failures and missing keys

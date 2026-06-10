@@ -63,10 +63,22 @@ def index():
     return send_from_directory(app.static_folder, "index.html")
 
 
+# Bump on each frontend/behavior change so you can confirm what Railway is serving.
+BUILD = "stream-v1"
+
+
 @app.route("/health")
 def health():
-    """Simple health check for Railway."""
-    return jsonify({"status": "ok"})
+    """Simple health check for Railway (also reports the running build)."""
+    return jsonify({"status": "ok", "build": BUILD})
+
+
+@app.after_request
+def no_cache_assets(resp):
+    """Force browsers to revalidate HTML/CSS/JS so new deploys are picked up."""
+    if request.path == "/" or request.path.endswith((".html", ".css", ".js")):
+        resp.headers["Cache-Control"] = "no-cache"
+    return resp
 
 
 @app.route("/api/research", methods=["POST"])
@@ -97,6 +109,10 @@ def research():
         """Stream the agent's real steps and answer tokens as Server-Sent Events."""
         def sse(obj):
             return f"data: {json.dumps(obj)}\n\n"
+
+        # Padding comment + early flush to defeat proxy/Railway response buffering.
+        yield ":" + (" " * 2048) + "\n\n"
+        yield "retry: 3000\n\n"
 
         agent = get_agent()
         answer_parts = []

@@ -64,7 +64,7 @@ def index():
 
 
 # Bump on each frontend/behavior change so you can confirm what Railway is serving.
-BUILD = "mobile-v1"
+BUILD = "mobile-v2"
 
 
 @app.route("/health")

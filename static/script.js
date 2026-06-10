@@ -64,6 +64,10 @@ function setSidebar(open) {
 }
 menuToggle.addEventListener("click", () => setSidebar(!sidebar.classList.contains("open")));
 backdrop.addEventListener("click", () => setSidebar(false));
+document.getElementById("sidebarClose").addEventListener("click", () => setSidebar(false));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") setSidebar(false);
+});
 
 // ---------- Core ----------
 async function submitQuery() {

@@ -17,6 +17,7 @@ const historyList = document.getElementById("historyList");
 const historyWrap = document.getElementById("history");
 const sidebar = document.getElementById("sidebar");
 const menuToggle = document.getElementById("menuToggle");
+const backdrop = document.getElementById("backdrop");
 
 // ---------- Init ----------
 loadConversations();
@@ -57,7 +58,12 @@ newChatBtn.addEventListener("click", () => {
   closeSidebarOnMobile();
 });
 
-menuToggle.addEventListener("click", () => sidebar.classList.toggle("open"));
+function setSidebar(open) {
+  sidebar.classList.toggle("open", open);
+  backdrop.hidden = !open;
+}
+menuToggle.addEventListener("click", () => setSidebar(!sidebar.classList.contains("open")));
+backdrop.addEventListener("click", () => setSidebar(false));
 
 // ---------- Core ----------
 async function submitQuery() {
@@ -351,7 +357,7 @@ function autoGrow() {
 }
 
 function closeSidebarOnMobile() {
-  sidebar.classList.remove("open");
+  setSidebar(false);
 }
 
 function escapeHtml(str) {

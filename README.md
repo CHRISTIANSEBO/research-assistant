@@ -28,7 +28,6 @@ remembers conversation context, and saves every result to a timestamped file.
 - **Search Tool:** Tavily API
 - **Backend:** Flask (served with gunicorn)
 - **Frontend:** Custom HTML / CSS / JavaScript (no framework)
-- **Legacy UI:** Streamlit (`app.py`, still available)
 - **Deployment:** Railway
 - **Language:** Python 3.11
 
@@ -63,11 +62,6 @@ remembers conversation context, and saves every result to a timestamped file.
 ```
 Then open http://localhost:8080
 
-Or run the legacy Streamlit UI
-```bash
-   streamlit run app.py
-```
-
 Or run the CLI version
 ```bash
    python main.py
@@ -93,8 +87,7 @@ research-assistant/
 ├── requirements.txt
 ├── Procfile              # Railway / gunicorn start command
 ├── railway.json          # Railway deploy config
-├── server.py             # Flask backend + JSON API (port 8080)
-├── app.py                # Legacy Streamlit UI
+├── server.py             # Flask backend + streaming API (port 8080)
 ├── main.py               # CLI
 ├── static/               # Custom HTML/CSS/JS frontend
 │   ├── index.html
@@ -119,7 +112,7 @@ python -m pytest tests/ -v
 ```
 
 ## ✨ Features
-- Clean, responsive web interface built with custom HTML/CSS/JS (Streamlit UI also available)
+- Clean, responsive web interface built with custom HTML/CSS/JS
 - ChatGPT-style layout: landing suggestions, chat view, and a conversation sidebar
 - Conversation history persisted in the browser via localStorage
 - Conversational memory across the session

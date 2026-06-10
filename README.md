@@ -26,7 +26,10 @@ remembers conversation context, and saves every result to a timestamped file.
 - **LLM:** Anthropic Claude (claude-sonnet)
 - **Agent Framework:** LangChain
 - **Search Tool:** Tavily API
-- **UI:** Streamlit
+- **Backend:** Flask (served with gunicorn)
+- **Frontend:** Custom HTML / CSS / JavaScript (no framework)
+- **Legacy UI:** Streamlit (`app.py`, still available)
+- **Deployment:** Railway
 - **Language:** Python 3.11
 
 ## ⚙️ Setup Instructions
@@ -54,7 +57,13 @@ remembers conversation context, and saves every result to a timestamped file.
    TAVILY_API_KEY=your_key_here
 ```
 
-5. Run the web app
+5. Run the web app (custom HTML/CSS/JS frontend on port 8080)
+```bash
+   python server.py
+```
+Then open http://localhost:8080
+
+Or run the legacy Streamlit UI
 ```bash
    streamlit run app.py
 ```
@@ -64,14 +73,33 @@ Or run the CLI version
    python main.py
 ```
 
+## 🚀 Deploying to Railway
+The app is configured to run on Railway out of the box:
+- `server.py` binds to `0.0.0.0` on `$PORT` (defaults to **8080**).
+- `Procfile` / `railway.json` start the app with gunicorn and expose a `/health` check.
+
+Steps:
+1. Create a new Railway project from this repo.
+2. Add the `ANTHROPIC_API_KEY` and `TAVILY_API_KEY` environment variables.
+3. Railway builds with Nixpacks, installs `requirements.txt`, and starts:
+   `gunicorn server:app --bind 0.0.0.0:$PORT`
+4. Live at your Railway domain, e.g. `https://research-assistant-production-0.up.railway.app`
+
 ## 📁 Project Structure
 ```
 research-assistant/
 ├── .env
 ├── .gitignore
 ├── requirements.txt
-├── app.py
-├── main.py
+├── Procfile              # Railway / gunicorn start command
+├── railway.json          # Railway deploy config
+├── server.py             # Flask backend + JSON API (port 8080)
+├── app.py                # Legacy Streamlit UI
+├── main.py               # CLI
+├── static/               # Custom HTML/CSS/JS frontend
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
 ├── agent/
 │   ├── __init__.py
 │   ├── tools.py
@@ -91,7 +119,9 @@ python -m pytest tests/ -v
 ```
 
 ## ✨ Features
-- Clean, responsive web interface built with Streamlit
+- Clean, responsive web interface built with custom HTML/CSS/JS (Streamlit UI also available)
+- ChatGPT-style layout: landing suggestions, chat view, and a conversation sidebar
+- Conversation history persisted in the browser via localStorage
 - Conversational memory across the session
 - Real-time web search with cited sources
 - Auto-saves research results to timestamped files in `results/research_YYYYMMDD_HHMMSS.txt`

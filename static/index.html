@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Assistant</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <h1 class="brand">Research Assistant</h1>
+        <p class="brand-sub">Powered by Claude + Tavily</p>
+      </div>
+
+      <button class="new-chat" id="newChat">
+        <span>+</span> New conversation
+      </button>
+
+      <div class="history" id="history">
+        <p class="history-label">Previous conversations</p>
+        <ul id="historyList"></ul>
+      </div>
+
+      <p class="sidebar-foot">Results are auto-saved to <code>results/</code></p>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">☰</button>
+
+      <!-- Landing view -->
+      <section class="landing" id="landing">
+        <h2 class="landing-title">What can I research for you?</h2>
+        <div class="chip-row">
+          <button class="chip" data-query="Find recent news on artificial intelligence">🗞️ Find recent news on...</button>
+          <button class="chip" data-query="Give me a summary of quantum computing">📝 Summarize a topic</button>
+          <button class="chip" data-query="Compare Python vs JavaScript for backend development">⚖️ Compare two things</button>
+        </div>
+      </section>
+
+      <!-- Chat view -->
+      <section class="chat" id="chat" hidden></section>
+
+      <!-- Composer -->
+      <div class="composer">
+        <form id="composerForm">
+          <textarea
+            id="input"
+            rows="1"
+            placeholder="Ask a research question..."
+            autocomplete="off"></textarea>
+          <button type="submit" id="sendBtn" aria-label="Send">↑</button>
+        </form>
+        <p class="disclaimer">Research Assistant can make mistakes. Verify important info.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

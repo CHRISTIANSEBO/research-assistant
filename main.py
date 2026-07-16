@@ -123,14 +123,15 @@ def main():
             filename = save_research(query, output)
             print(f"💾 Research saved to: {filename}\n")
 
+            # Add this exchange to chat history only after a successful run,
+            # so a failed request never references an undefined `output`.
+            chat_history.append(HumanMessage(content=query))
+            chat_history.append(AIMessage(content=output))
+
         except Exception as e:
             # Catch any API or runtime error and show a helpful message
             print(f"\n❌ Something went wrong: {str(e)}")
             print("Please try again or check your API keys.\n")
-
-        # Add this exchange to chat history
-        chat_history.append(HumanMessage(content=query))
-        chat_history.append(AIMessage(content=output))
 
 if __name__ == "__main__":
     main()

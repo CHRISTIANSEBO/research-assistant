@@ -88,3 +88,27 @@ def test_main_survives_agent_error(monkeypatch, capsys):
     assert "boom" in captured.out
     # The failed exchange should be reported and skipped without a crash.
     failing_agent.invoke.assert_called_once()
+
+
+def test_main_handles_list_output_format(monkeypatch, capsys):
+    """Cover the list output path (previously untested)."""
+    import main
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-anthropic-key")
+    monkeypatch.setenv("TAVILY_API_KEY", "fake-tavily-key")
+    monkeypatch.setattr(sys, "argv", ["main.py"])
+
+    mock_agent = MagicMock()
+    # Simulate the list response format from some agent versions
+    mock_response = {"output": [{"text": "List format result."}]}
+    mock_agent.invoke.return_value = mock_response
+    monkeypatch.setattr(main, "create_research_agent", lambda: mock_agent)
+
+    # One query then exit
+    monkeypatch.setattr("builtins.input", MagicMock(side_effect=["test list output", "exit"]))
+
+    main.main()
+
+    captured = capsys.readouterr()
+    assert "List format result." in captured.out
+    assert "Research saved to" in captured.out

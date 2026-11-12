@@ -81,6 +81,7 @@ async function submitQuery() {
 
   busy = true;
   updateSendState();
+  renderHistory();
 
   const stream = appendStreaming();
   let answer = "";
@@ -155,6 +156,7 @@ async function submitQuery() {
   } finally {
     busy = false;
     updateSendState();
+    renderHistory();
   }
 }
 
@@ -315,12 +317,45 @@ function renderHistory() {
   historyWrap.classList.toggle("empty", conversations.length === 0);
   conversations.forEach((c, i) => {
     const li = document.createElement("li");
-    li.textContent = c.title;
-    li.title = c.title;
+    const title = document.createElement("button");
+    title.type = "button";
+    title.className = "history-title";
+    title.textContent = c.title;
+    title.title = c.title;
+    title.addEventListener("click", () => loadConversation(i));
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "history-delete";
+    remove.textContent = "×";
+    remove.title = `Delete “${c.title}”`;
+    remove.setAttribute("aria-label", `Delete conversation: ${c.title}`);
+    remove.disabled = busy && i === activeIndex;
+    remove.addEventListener("click", () => deleteConversation(i));
+
     if (i === activeIndex) li.classList.add("active");
-    li.addEventListener("click", () => loadConversation(i));
+    li.append(title, remove);
     historyList.appendChild(li);
   });
+}
+
+function deleteConversation(i) {
+  if (i < 0 || i >= conversations.length) return;
+  if (busy && i === activeIndex) return;
+
+  const deletingActive = i === activeIndex;
+  conversations.splice(i, 1);
+
+  if (deletingActive) {
+    messages = [];
+    activeIndex = null;
+    renderChat();
+  } else if (activeIndex !== null && i < activeIndex) {
+    activeIndex -= 1;
+  }
+
+  saveConversations();
+  renderHistory();
 }
 
 function loadConversation(i) {

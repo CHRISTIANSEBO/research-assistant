@@ -13,7 +13,7 @@ from flask import (
 )
 from langchain_core.messages import AIMessage, HumanMessage
 
-from agent.assistant import create_research_agent
+from agent.assistant import DEFAULT_ANTHROPIC_MODEL, create_research_agent
 from agent.file_handler import save_research
 
 
@@ -64,13 +64,17 @@ def index():
 
 
 # Bump on each frontend/behavior change so you can confirm what Railway is serving.
-BUILD = "mobile-v2"
+BUILD = "model-delete-v3"
 
 
 @app.route("/health")
 def health():
     """Simple health check for Railway (also reports the running build)."""
-    return jsonify({"status": "ok", "build": BUILD})
+    return jsonify({
+        "status": "ok",
+        "build": BUILD,
+        "anthropic_model": os.getenv("ANTHROPIC_MODEL", DEFAULT_ANTHROPIC_MODEL),
+    })
 
 
 @app.after_request

@@ -23,7 +23,7 @@ in real time, synthesizes findings into clear bullet points with sources,
 remembers conversation context, and saves every result to a timestamped file.
 
 ## 🛠 Tech Stack
-- **LLM:** Anthropic Claude (claude-sonnet)
+- **LLM:** Anthropic Claude Haiku 5.5 (configurable with `ANTHROPIC_MODEL`)
 - **Agent Framework:** LangChain
 - **Search Tool:** Tavily API
 - **Backend:** Flask (served with gunicorn)
@@ -52,8 +52,9 @@ remembers conversation context, and saves every result to a timestamped file.
 
 4. Add your API keys — create a .env file in the root folder
 ```
-   ANTHROPIC_API_KEY=your_key_here
-   TAVILY_API_KEY=your_key_here
+ANTHROPIC_API_KEY=your_key_here
+TAVILY_API_KEY=your_key_here
+ANTHROPIC_MODEL=claude-haiku-5-5
 ```
 
 5. Run the web app (custom HTML/CSS/JS frontend on port 8080)
@@ -115,6 +116,7 @@ python -m pytest tests/ -v
 - Clean, responsive web interface built with custom HTML/CSS/JS
 - ChatGPT-style layout: landing suggestions, chat view, and a conversation sidebar
 - Conversation history persisted in the browser via localStorage
+- Per-conversation delete controls in the history sidebar
 - Conversational memory across the session
 - Real-time web search with cited sources
 - Streaming responses (Server-Sent Events): live research steps (searching, sources read) and answer tokens stream in as the agent works

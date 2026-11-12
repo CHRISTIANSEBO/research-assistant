@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
 from langchain.agents import create_tool_calling_agent, AgentExecutor
@@ -6,8 +8,11 @@ from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
 
+DEFAULT_ANTHROPIC_MODEL = "claude-haiku-5-5"
+
 def create_research_agent():
-    llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+    model = os.getenv("ANTHROPIC_MODEL", DEFAULT_ANTHROPIC_MODEL)
+    llm = ChatAnthropic(model=model)
     tools = get_tools()
 
     prompt = ChatPromptTemplate.from_messages([

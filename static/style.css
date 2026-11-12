@@ -119,18 +119,56 @@ html, body {
 .history.empty .history-label { display: none; }
 #historyList { list-style: none; margin: 0; padding: 0; }
 #historyList li {
-  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
   font-size: 0.85rem;
   border-radius: 8px;
-  cursor: pointer;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   border: 1px solid transparent;
 }
 #historyList li:hover { background: var(--bubble); border-color: var(--border); }
 #historyList li.active { background: #ebebeb; border-color: #ccc; }
+.history-title {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.history-delete {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #999;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.history-delete:hover,
+.history-delete:focus-visible {
+  background: #fee2e2;
+  color: #b91c1c;
+  outline: none;
+}
+.history-delete:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: transparent;
+  color: #999;
+}
 
 .sidebar-foot {
   font-size: 0.72rem;

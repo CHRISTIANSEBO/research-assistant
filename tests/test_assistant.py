@@ -22,13 +22,24 @@ def mock_langchain(monkeypatch):
     return mock_agents
 
     # Ensure the correct model is used when creating the research agent
-def test_create_research_agent_uses_claude_sonnet(mock_langchain):
+def test_create_research_agent_uses_cheapest_current_model_by_default(mock_langchain, monkeypatch):
     import agent.assistant as assistant_mod
+    monkeypatch.delenv("ANTHROPIC_MODEL", raising=False)
     mock_llm_cls = MagicMock(return_value=MagicMock())
     with patch.object(assistant_mod, "ChatAnthropic", mock_llm_cls), \
          patch.object(assistant_mod, "get_tools", return_value=[MagicMock()]):
         assistant_mod.create_research_agent()
-    mock_llm_cls.assert_called_once_with(model="claude-sonnet-4-20250514")
+    mock_llm_cls.assert_called_once_with(model="claude-haiku-5-5")
+
+
+def test_create_research_agent_allows_model_override(mock_langchain, monkeypatch):
+    import agent.assistant as assistant_mod
+    monkeypatch.setenv("ANTHROPIC_MODEL", "claude-test-model")
+    mock_llm_cls = MagicMock(return_value=MagicMock())
+    with patch.object(assistant_mod, "ChatAnthropic", mock_llm_cls), \
+         patch.object(assistant_mod, "get_tools", return_value=[MagicMock()]):
+        assistant_mod.create_research_agent()
+    mock_llm_cls.assert_called_once_with(model="claude-test-model")
 
     # Ensure the LLM instance is passed to the agent
 def test_create_research_agent_calls_get_tools(mock_langchain):

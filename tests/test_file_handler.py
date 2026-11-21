@@ -1,5 +1,9 @@
 import os
+from datetime import datetime
+from unittest.mock import patch
+
 import pytest
+from agent import file_handler
 from agent.file_handler import save_research
 
 
@@ -42,3 +46,35 @@ def test_save_research_unique_filenames(tmp_path, monkeypatch):
     # Both files should exist (timestamps may differ by a second)
     assert os.path.exists(f1)
     assert os.path.exists(f2)
+
+
+def test_save_research_same_second_does_not_overwrite(tmp_path, monkeypatch):
+    """Regression: two saves in the same second must not clobber each other.
+
+    Previously the filename was built solely from a ``%Y%m%d_%H%M%S`` timestamp,
+    so two researches that finished within the same second produced the exact
+    same path and the second write silently overwrote the first result.
+    """
+    monkeypatch.chdir(tmp_path)
+
+    fixed = datetime(2026, 1, 1, 12, 0, 0)
+
+    class FrozenDateTime:
+        @staticmethod
+        def now():
+            return fixed
+
+    with patch.object(file_handler, "datetime", FrozenDateTime):
+        f1 = save_research("first query", "first result")
+        f2 = save_research("second query", "second result")
+
+    # Distinct files are produced even with an identical timestamp.
+    assert f1 != f2
+    assert os.path.exists(f1)
+    assert os.path.exists(f2)
+
+    # The first result is preserved rather than being overwritten.
+    with open(f1, encoding="utf-8") as f:
+        assert "first query" in f.read()
+    with open(f2, encoding="utf-8") as f:
+        assert "second query" in f.read()
